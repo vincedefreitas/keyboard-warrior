@@ -1,6 +1,5 @@
 import "./App.css";
 import TargetLetter from "./Components/TargetLetter/TargetLetter";
-import "./App.css"
 import MovingBackground from "./Components/Background";
 
 const LETTER_COLORS = {
@@ -111,7 +110,6 @@ const LETTER_COLORS = {
 } as const;
 
 const LETTERS = Object.keys(LETTER_COLORS) as Array<keyof typeof LETTER_COLORS>;
-
 const TARGET_SIZE = 50;
 
 function App() {
