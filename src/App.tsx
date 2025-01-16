@@ -113,22 +113,23 @@ const LETTERS = Object.keys(LETTER_COLORS) as Array<keyof typeof LETTER_COLORS>;
 const TARGET_SIZE = 50;
 
 function App() {
-  return LETTERS.map((letter, index) => {
-    const angle = (index / LETTERS.length) * Math.PI * 2 - Math.PI / 2;
-    return (
-      <>
-      <MovingBackground/>
-      <TargetLetter
-        key={letter}
-        letter={letter}
-        angle={angle}
-        size={TARGET_SIZE}
-        colors={LETTER_COLORS[letter]}
-      />
-      </>
-    );
-  });
+  return (
+    <>
+      <MovingBackground />
+      {LETTERS.map((letter, index) => {
+        const angle = (index / LETTERS.length) * Math.PI * 2 - Math.PI / 2;
+        return (
+          <TargetLetter
+            key={letter}
+            letter={letter}
+            angle={angle}
+            size={TARGET_SIZE}
+            colors={LETTER_COLORS[letter]}
+          />
+        );
+      })}
+    </>
+  );
 }
 
-
-export default App
+export default App;
