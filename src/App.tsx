@@ -1,5 +1,7 @@
 import "./App.css";
-import TargetLetter from "./components/TargetLetter/TargetLetter";
+import TargetLetter from "./Components/TargetLetter/TargetLetter";
+import "./App.css"
+import MovingBackground from "./Components/Background";
 
 const LETTER_COLORS = {
   Q: {
@@ -116,6 +118,8 @@ function App() {
   return LETTERS.map((letter, index) => {
     const angle = (index / LETTERS.length) * Math.PI * 2 - Math.PI / 2;
     return (
+      <>
+      <MovingBackground/>
       <TargetLetter
         key={letter}
         letter={letter}
@@ -123,8 +127,10 @@ function App() {
         size={TARGET_SIZE}
         colors={LETTER_COLORS[letter]}
       />
+      </>
     );
   });
 }
 
-export default App;
+
+export default App
