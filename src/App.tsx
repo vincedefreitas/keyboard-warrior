@@ -1,6 +1,7 @@
 import "./App.css";
 import TargetLetter from "./Components/TargetLetter/TargetLetter";
 import MovingBackground from "./Components/Background";
+import FlyingLetters from "./Components/FlyingLetters";
 
 const LETTER_COLORS = {
   Q: {
