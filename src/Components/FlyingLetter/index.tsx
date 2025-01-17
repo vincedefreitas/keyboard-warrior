@@ -1,3 +1,5 @@
+import useWindowSize from "../../hooks/useWindowSize";
+
 interface FlyingLetterProps {
   letter: string;
   angle: number;
@@ -15,8 +17,8 @@ export function FlyingLetter({
   size,
   colors,
 }: FlyingLetterProps) {
-  const radius =
-    Math.min(window.innerWidth, window.innerHeight) * 0.45 * progress;
+  const { width, height } = useWindowSize();
+  const radius = Math.min(width, height) * 0.45 * progress;
   const x = Math.cos(angle) * radius;
   const y = Math.sin(angle) * radius;
   return (
