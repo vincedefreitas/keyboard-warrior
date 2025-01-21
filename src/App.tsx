@@ -1,6 +1,8 @@
 import "./App.css";
+import { useState } from "react";
 import TargetLetter from "./Components/TargetLetter/TargetLetter";
 import MovingBackground from "./Components/Background";
+import StartModal from "./Components/StartModal";
 
 const LETTER_COLORS = {
   Q: {
@@ -113,8 +115,29 @@ const LETTERS = Object.keys(LETTER_COLORS) as Array<keyof typeof LETTER_COLORS>;
 const TARGET_SIZE = 50;
 
 function App() {
+  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [timerRunning, setTimerRunning] = useState(false)
+  const [gameRunning, setGameRunning] = useState(false)
+
+  function handleModalClose(){
+    setIsModalOpen(false);
+  }
+
+  function handleGameStart() {
+    setIsModalOpen(false);
+    setTimerRunning(true)
+    console.log("Modal open = " + isModalOpen)
+    console.log("timer running = " + timerRunning)
+    console.log("game running = " + gameRunning)
+  }
+  
   return (
     <>
+      <StartModal
+        modalOpen={isModalOpen}
+        onClose={handleGameStart}
+        onStart={handleModalClose}
+      />
       <MovingBackground />
       {LETTERS.map((letter, index) => {
         const angle = (index / LETTERS.length) * Math.PI * 2 - Math.PI / 2;
