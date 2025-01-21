@@ -12,14 +12,14 @@ function CountdownTimer({ timerStart, onComplete }: CountdownTimerProps) {
   useEffect(() => {
     if (!timerStart) return;
 
-    setTimeLeft(3); // Reset timer when it starts
-    setShowGo(false); // Reset "Go!" visibility
+    setTimeLeft(3);
+    setShowGo(false);
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev > 1) return prev - 1;
         clearInterval(interval);
-        onComplete(); // Call onComplete when timer ends
-        setShowGo(true); // Show "Go!" when countdown ends
+        onComplete();
+        setShowGo(true);
         return 0;
       });
     }, 1000);
@@ -29,7 +29,7 @@ function CountdownTimer({ timerStart, onComplete }: CountdownTimerProps) {
 
   useEffect(() => {
     if (showGo) {
-      const timer = setTimeout(() => setShowGo(false), 1000); // Hide "Go!" after 1 second
+      const timer = setTimeout(() => setShowGo(false), 1000);
       return () => clearTimeout(timer);
     }
   }, [showGo]);
@@ -41,7 +41,7 @@ function CountdownTimer({ timerStart, onComplete }: CountdownTimerProps) {
       {timeLeft > 0 ? (
         <h1 className="w-size text-9xl text-white p-4">{timeLeft}</h1>
       ) : showGo ? (
-        <p className="w-36 h-36 text-4xl text-white bg-green-600 border-8 border-green-400 p-4 rounded-full flex justify-center items-center">Go!</p>
+        <p className="w-36 h-36 text-5xl text-white bg-green-600 border-8 border-green-400 p-4 rounded-full flex justify-center items-center">GO!</p>
       ) : null}
     </div>
   );
