@@ -3,6 +3,7 @@ import { useState } from "react";
 import TargetLetter from "./Components/TargetLetter/TargetLetter";
 import MovingBackground from "./Components/Background";
 import StartModal from "./Components/StartModal";
+import CountdownTimer from "./Components/CountdownTimer";
 
 const LETTER_COLORS = {
   Q: {
@@ -116,28 +117,35 @@ const TARGET_SIZE = 50;
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(true);
-  const [timerRunning, setTimerRunning] = useState(false)
-  const [gameRunning, setGameRunning] = useState(false)
+  const [timerStarted, setTimerStarted] = useState(false)
+  const [gameStarted, setGameStarted] = useState(false)
 
   function handleModalClose(){
     setIsModalOpen(false);
   }
 
-  function handleGameStart() {
+  function handleTimerStart() {
     setIsModalOpen(false);
-    setTimerRunning(true)
+    setTimerStarted(true)
     console.log("Modal open = " + isModalOpen)
-    console.log("timer running = " + timerRunning)
-    console.log("game running = " + gameRunning)
+    console.log("timer started = " + timerStarted)
+    console.log("game running = " + gameStarted)
+  }
+
+  function handleGameStart() {
+    async () => setGameStarted(true)
+    async () => setTimerStarted(false)
   }
   
   return (
     <>
+
       <StartModal
         modalOpen={isModalOpen}
-        onClose={handleGameStart}
-        onStart={handleModalClose}
+        onClose={handleModalClose}
+        onStart={handleTimerStart}
       />
+      <CountdownTimer timerStart={timerStarted} onComplete={ () => handleGameStart }/>
       <MovingBackground />
       {LETTERS.map((letter, index) => {
         const angle = (index / LETTERS.length) * Math.PI * 2 - Math.PI / 2;
