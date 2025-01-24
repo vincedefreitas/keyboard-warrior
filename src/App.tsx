@@ -7,11 +7,18 @@ const App: React.FC = () => {
   const [score, setScore] = useState(0);
   const [activeLetters, setActiveLetters] = useState<{ id: number; letter: string; targetX: number; targetY: number; progress: number }[]>([]);
   const [letterId, setLetterId] = useState(0);
+  const [gameActive, setGameActive] = useState(false);
+  const [difficulty, setDifficulty] = useState<'easy' | 'hard' | 'pro'>('easy');
   const circleRef = useRef<HTMLDivElement>(null);
 
   const radius = 200; // Radius of the circle in pixels
-  const speed = 2000; // Speed of animation in milliseconds
-  const spawnInterval = 1000; // Interval between new letters spawning
+  const difficultySettings = {
+    easy: { speed: 3000, spawnInterval: 1200 },
+    hard: { speed: 2000, spawnInterval: 800 },
+    pro: { speed: 1200, spawnInterval: 500 },
+  };
+
+  const { speed, spawnInterval } = difficultySettings[difficulty];
 
   // Place letters in a circular layout
   const getLetterPositions = () => {
@@ -40,11 +47,14 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
+    if (!gameActive) return;
+
     // Timer countdown
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
+          setGameActive(false);
           alert(`Game Over! Your score: ${score}`);
           return 0;
         }
@@ -59,9 +69,11 @@ const App: React.FC = () => {
       clearInterval(timer);
       clearInterval(letterInterval);
     };
-  }, [score]);
+  }, [gameActive, score, spawnInterval]);
 
   useEffect(() => {
+    if (!gameActive) return;
+
     const animationInterval = setInterval(() => {
       setActiveLetters((prev) =>
         prev
@@ -77,9 +89,11 @@ const App: React.FC = () => {
     }, 20);
 
     return () => clearInterval(animationInterval);
-  }, []);
+  }, [gameActive, speed]);
 
   const handleKeyPress = (event: KeyboardEvent) => {
+    if (!gameActive) return;
+
     const pressedKey = event.key.toUpperCase();
     setActiveLetters((prev) => {
       return prev.filter((letter) => {
@@ -100,44 +114,77 @@ const App: React.FC = () => {
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, []);
+  }, [gameActive]);
+
+  const startGame = () => {
+    setTimeLeft(60);
+    setScore(0);
+    setActiveLetters([]);
+    setLetterId(0);
+    setGameActive(true);
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
-      <div className="absolute top-4 left-4 text-lg">Time: {timeLeft}</div>
-      <div className="absolute top-4 right-4 text-lg">Score: {score}</div>
-
-      <div
-        ref={circleRef}
-        className="relative flex items-center justify-center rounded-full border border-white"
-        style={{ width: radius * 2, height: radius * 2 }}
-      >
-        {getLetterPositions().map(({ letter, x, y }) => (
-          <div
-            key={letter}
-            className="absolute text-sm font-bold"
-            style={{
-              transform: `translate(${x}px, ${y}px)`,
-            }}
-          >
-            {letter}
+      {!gameActive ? (
+        <div className="flex flex-col items-center">
+          <div className="mb-4">
+            <label className="mr-2">Select Difficulty:</label>
+            <select
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value as 'easy' | 'hard' | 'pro')}
+              className="px-4 py-2 bg-gray-800 text-white rounded"
+            >
+              <option value="easy">Easy</option>
+              <option value="hard">Hard</option>
+              <option value="pro">Pro</option>
+            </select>
           </div>
-        ))}
-
-        {activeLetters.map(({ id, letter, targetX, targetY, progress }) => (
-          <div
-            key={id}
-            className="absolute text-xl font-bold text-red-500"
-            style={{
-              left: `calc(50% + ${progress * targetX}px)`,
-              top: `calc(50% + ${progress * targetY}px)`,
-              transform: `translate(-50%, -50%)`,
-            }}
+          <button
+            onClick={startGame}
+            className="px-6 py-3 mb-6 text-lg font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-600"
           >
-            {letter}
+            {timeLeft === 0 ? 'Retry' : 'Start Game'}
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className="absolute top-4 left-4 text-lg">Time: {timeLeft}</div>
+          <div className="absolute top-4 right-4 text-lg">Score: {score}</div>
+
+          <div
+            ref={circleRef}
+            className="relative flex items-center justify-center rounded-full border border-white"
+            style={{ width: radius * 2, height: radius * 2 }}
+          >
+            {getLetterPositions().map(({ letter, x, y }) => (
+              <div
+                key={letter}
+                className="absolute text-sm font-bold"
+                style={{
+                  transform: `translate(${x}px, ${y}px)`
+                }}
+              >
+                {letter}
+              </div>
+            ))}
+
+            {activeLetters.map(({ id, letter, targetX, targetY, progress }) => (
+              <div
+                key={id}
+                className="absolute text-xl font-bold text-red-500"
+                style={{
+                  left: `calc(50% + ${progress * targetX}px)`,
+                  top: `calc(50% + ${progress * targetY}px)`,
+                  transform: `translate(-50%, -50%)`
+                }}
+              >
+                {letter}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
     </div>
   );
 };
