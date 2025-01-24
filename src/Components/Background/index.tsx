@@ -100,7 +100,6 @@ const MovingBackground: React.FC = () => {
 
   return (
     <div className="w-full h-full min-h-screen bg-[#161624] relative overflow-hidden">
-      <div className="absolute text-white text-3xl p-10">Score: 1234</div>
       {divs.map((div, index) => (
         <div
           key={index}

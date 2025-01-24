@@ -14,34 +14,44 @@ function CountdownTimer({ timerStart, onComplete }: CountdownTimerProps) {
 
     setTimeLeft(3);
     setShowGo(false);
+
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev > 1) return prev - 1;
         clearInterval(interval);
-        onComplete();
-        setShowGo(true);
         return 0;
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timerStart, onComplete]);
+  }, [timerStart]);
 
   useEffect(() => {
-    if (showGo) {
-      const timer = setTimeout(() => setShowGo(false), 1000);
-      return () => clearTimeout(timer);
+    if (timeLeft === 0 && timerStart) {
+      setShowGo(true);
+
+      const goTimeout = setTimeout(() => {
+        setShowGo(false);
+        onComplete();
+      }, 1000);
+
+      return () => clearTimeout(goTimeout);
     }
-  }, [showGo]);
+  }, [timeLeft, timerStart, onComplete]);
 
   if (!timerStart) return null;
 
   return (
-    <div className="w-full h-full rounded-full absolute flex justify-center items-center z-10">
+    <div className="w-full h-full absolute flex justify-center items-center z-10">
       {timeLeft > 0 ? (
-        <h1 className="w-size text-9xl text-white p-4">{timeLeft}</h1>
+        <h1 className="w-36 h-36 text-5xl text-white bg-green-600 border-8 border-green-400 p-4 rounded-full flex justify-center items-center">{timeLeft}</h1>
       ) : showGo ? (
-        <p className="w-36 h-36 text-5xl text-white bg-green-600 border-8 border-green-400 p-4 rounded-full flex justify-center items-center">GO!</p>
+        <p
+          className="w-36 h-36 text-5xl text-white bg-green-600 border-8 border-green-400 p-4 rounded-full flex justify-center items-center"
+          style={{ transition: "transform 1s ease-in-out" }}
+        >
+          GO!
+        </p>
       ) : null}
     </div>
   );

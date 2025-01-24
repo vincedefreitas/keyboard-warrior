@@ -4,6 +4,7 @@ import TargetLetter from "./Components/TargetLetter/TargetLetter";
 import MovingBackground from "./Components/Background";
 import StartModal from "./Components/StartModal";
 import CountdownTimer from "./Components/CountdownTimer";
+import useWindowSize from "../src/hooks/useWindowSize";
 
 const LETTER_COLORS = {
   Q: {
@@ -119,6 +120,12 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [timerStarted, setTimerStarted] = useState(false)
   const [gameStarted, setGameStarted] = useState(false)
+  const [currentScore, setCurrentScore] = useState(0)
+  const [timeLeft, settimeLeft] = useState (0)
+
+   const windowSize = useWindowSize();
+   const radius = Math.min(windowSize.width, windowSize.height) * (gameStarted ? 0.4: 0);
+    
 
   function handleModalClose(){
     setIsModalOpen(false);
@@ -127,14 +134,11 @@ function App() {
   function handleTimerStart() {
     setIsModalOpen(false);
     setTimerStarted(true)
-    console.log("Modal open = " + isModalOpen)
-    console.log("timer started = " + timerStarted)
-    console.log("game running = " + gameStarted)
   }
 
   function handleGameStart() {
-    async () => setGameStarted(true)
-    async () => setTimerStarted(false)
+    setGameStarted(true)
+    setTimerStarted(false)
   }
   
   return (
@@ -145,7 +149,13 @@ function App() {
         onClose={handleModalClose}
         onStart={handleTimerStart}
       />
-      <CountdownTimer timerStart={timerStarted} onComplete={ () => handleGameStart }/>
+      <CountdownTimer timerStart={timerStarted} onComplete={handleGameStart } />
+
+      <div className="absolute w-full h-1/4 flex justify-between bg-transparent">
+      <h1 className="text-white text-3xl p-10 z-10">Score : {currentScore > 0 ? currentScore : " - - - -"} </h1>
+      <h1 className="text-white text-3xl p-10 z-10 float-right">Time Left : {timeLeft > 0 ? timeLeft : "00:00"}</h1>
+      </div>
+      
       <MovingBackground />
       {LETTERS.map((letter, index) => {
         const angle = (index / LETTERS.length) * Math.PI * 2 - Math.PI / 2;
@@ -156,6 +166,7 @@ function App() {
             angle={angle}
             size={TARGET_SIZE}
             colors={LETTER_COLORS[letter]}
+            radius={radius}
           />
         );
       })}
