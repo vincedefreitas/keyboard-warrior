@@ -1,177 +1,145 @@
-import "./App.css";
-import { useState } from "react";
-import TargetLetter from "./Components/TargetLetter/TargetLetter";
-import MovingBackground from "./Components/Background";
-import StartModal from "./Components/StartModal";
-import CountdownTimer from "./Components/CountdownTimer";
-import useWindowSize from "../src/hooks/useWindowSize";
+import React, { useState, useEffect, useRef } from 'react';
+import './App.css';
 
-const LETTER_COLORS = {
-  Q: {
-    bg: "bg-red-500",
-    border: "border-red-300",
-  },
-  W: {
-    bg: "bg-orange-500",
-    border: "border-orange-300",
-  },
-  E: {
-    bg: "bg-yellow-500",
-    border: "border-yellow-300",
-  },
-  R: {
-    bg: "bg-green-500",
-    border: "border-green-300",
-  },
-  T: {
-    bg: "bg-teal-500",
-    border: "border-teal-300",
-  },
-  Y: {
-    bg: "bg-blue-500",
-    border: "border-blue-300",
-  },
-  U: {
-    bg: "bg-indigo-500",
-    border: "border-indigo-300",
-  },
-  I: {
-    bg: "bg-purple-500",
-    border: "border-purple-300",
-  },
-  O: {
-    bg: "bg-pink-500",
-    border: "border-pink-300",
-  },
-  P: {
-    bg: "bg-red-600",
-    border: "border-red-400",
-  },
-  A: {
-    bg: "bg-orange-600",
-    border: "border-orange-400",
-  },
-  S: {
-    bg: "bg-yellow-600",
-    border: "border-yellow-400",
-  },
-  D: {
-    bg: "bg-green-600",
-    border: "border-green-400",
-  },
-  F: {
-    bg: "bg-teal-600",
-    border: "border-teal-400",
-  },
-  G: {
-    bg: "bg-blue-600",
-    border: "border-blue-400",
-  },
-  H: {
-    bg: "bg-indigo-600",
-    border: "border-indigo-400",
-  },
-  J: {
-    bg: "bg-purple-600",
-    border: "border-purple-400",
-  },
-  K: {
-    bg: "bg-pink-600",
-    border: "border-pink-400",
-  },
-  L: {
-    bg: "bg-red-700",
-    border: "border-red-500",
-  },
-  Z: {
-    bg: "bg-orange-700",
-    border: "border-orange-500",
-  },
-  X: {
-    bg: "bg-yellow-700",
-    border: "border-yellow-500",
-  },
-  C: {
-    bg: "bg-green-700",
-    border: "border-green-500",
-  },
-  V: {
-    bg: "bg-teal-700",
-    border: "border-teal-500",
-  },
-  B: {
-    bg: "bg-blue-700",
-    border: "border-blue-500",
-  },
-  N: {
-    bg: "bg-indigo-700",
-    border: "border-indigo-500",
-  },
-  M: {
-    bg: "bg-purple-700",
-    border: "border-purple-500",
-  },
-} as const;
+const App: React.FC = () => {
+  const letters = 'QWERTYUIOPASDFGHJKLZXCVBNM'.split('');
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [score, setScore] = useState(0);
+  const [activeLetters, setActiveLetters] = useState<{ id: number; letter: string; targetX: number; targetY: number; progress: number }[]>([]);
+  const [letterId, setLetterId] = useState(0);
+  const circleRef = useRef<HTMLDivElement>(null);
 
-const LETTERS = Object.keys(LETTER_COLORS) as Array<keyof typeof LETTER_COLORS>;
-const TARGET_SIZE = 50;
+  const radius = 200; // Radius of the circle in pixels
+  const speed = 2000; // Speed of animation in milliseconds
+  const spawnInterval = 1000; // Interval between new letters spawning
 
-function App() {
-  const [isModalOpen, setIsModalOpen] = useState(true);
-  const [timerStarted, setTimerStarted] = useState(false)
-  const [gameStarted, setGameStarted] = useState(false)
-  const [currentScore, setCurrentScore] = useState(0)
-  const [timeLeft, settimeLeft] = useState (0)
+  // Place letters in a circular layout
+  const getLetterPositions = () => {
+    const angleStep = (2 * Math.PI) / letters.length;
+    return letters.map((letter, index) => {
+      const angle = -Math.PI / 2 + angleStep * index; // Start at the top, move anti-clockwise
+      return {
+        letter,
+        x: radius * Math.cos(angle),
+        y: radius * Math.sin(angle),
+      };
+    });
+  };
 
-   const windowSize = useWindowSize();
-   const radius = Math.min(windowSize.width, windowSize.height) * (gameStarted ? 0.4: 0);
-    
+  // Randomly generate a letter and animate it
+  const spawnLetter = () => {
+    const randomLetter = letters[Math.floor(Math.random() * letters.length)];
+    const target = getLetterPositions().find((pos) => pos.letter === randomLetter);
+    if (target) {
+      setActiveLetters((prev) => [
+        ...prev,
+        { id: letterId, letter: randomLetter, targetX: target.x, targetY: target.y, progress: 0 },
+      ]);
+      setLetterId((prev) => prev + 1);
+    }
+  };
 
-  function handleModalClose(){
-    setIsModalOpen(false);
-  }
+  useEffect(() => {
+    // Timer countdown
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          alert(`Game Over! Your score: ${score}`);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
-  function handleTimerStart() {
-    setIsModalOpen(false);
-    setTimerStarted(true)
-  }
+    // Spawn letters at intervals
+    const letterInterval = setInterval(spawnLetter, spawnInterval);
 
-  function handleGameStart() {
-    setGameStarted(true)
-    setTimerStarted(false)
-  }
-  
+    return () => {
+      clearInterval(timer);
+      clearInterval(letterInterval);
+    };
+  }, [score]);
+
+  useEffect(() => {
+    const animationInterval = setInterval(() => {
+      setActiveLetters((prev) =>
+        prev
+          .map((letter) => {
+            const newProgress = letter.progress + 20 / speed;
+            if (newProgress >= 1) {
+              return null; // Mark letter for removal once it reaches its target
+            }
+            return { ...letter, progress: newProgress };
+          })
+          .filter((letter) => letter !== null)
+      );
+    }, 20);
+
+    return () => clearInterval(animationInterval);
+  }, []);
+
+  const handleKeyPress = (event: KeyboardEvent) => {
+    const pressedKey = event.key.toUpperCase();
+    setActiveLetters((prev) => {
+      return prev.filter((letter) => {
+        if (letter.letter === pressedKey) {
+          const accuracy = Math.abs(1 - letter.progress);
+          if (accuracy < 0.1) {
+            setScore((score) => score + 5); // Perfect line-up
+          } else if (accuracy < 0.3) {
+            setScore((score) => score + 1); // Close line-up
+          }
+          return false; // Remove the letter
+        }
+        return true;
+      });
+    });
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
+
   return (
-    <>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
+      <div className="absolute top-4 left-4 text-lg">Time: {timeLeft}</div>
+      <div className="absolute top-4 right-4 text-lg">Score: {score}</div>
 
-      <StartModal
-        modalOpen={isModalOpen}
-        onClose={handleModalClose}
-        onStart={handleTimerStart}
-      />
-      <CountdownTimer timerStart={timerStarted} onComplete={handleGameStart } />
-
-      <div className="absolute w-full h-1/4 flex justify-between bg-transparent">
-      <h1 className="text-white text-3xl p-10 z-10">Score : {currentScore > 0 ? currentScore : " - - - -"} </h1>
-      <h1 className="text-white text-3xl p-10 z-10 float-right">Time Left : {timeLeft > 0 ? timeLeft : "00:00"}</h1>
-      </div>
-      
-      <MovingBackground />
-      {LETTERS.map((letter, index) => {
-        const angle = (index / LETTERS.length) * Math.PI * 2 - Math.PI / 2;
-        return (
-          <TargetLetter
+      <div
+        ref={circleRef}
+        className="relative flex items-center justify-center rounded-full border border-white"
+        style={{ width: radius * 2, height: radius * 2 }}
+      >
+        {getLetterPositions().map(({ letter, x, y }) => (
+          <div
             key={letter}
-            letter={letter}
-            angle={angle}
-            size={TARGET_SIZE}
-            colors={LETTER_COLORS[letter]}
-            radius={radius}
-          />
-        );
-      })}
-    </>
+            className="absolute text-sm font-bold"
+            style={{
+              transform: `translate(${x}px, ${y}px)`,
+            }}
+          >
+            {letter}
+          </div>
+        ))}
+
+        {activeLetters.map(({ id, letter, targetX, targetY, progress }) => (
+          <div
+            key={id}
+            className="absolute text-xl font-bold text-red-500"
+            style={{
+              left: `calc(50% + ${progress * targetX}px)`,
+              top: `calc(50% + ${progress * targetY}px)`,
+              transform: `translate(-50%, -50%)`,
+            }}
+          >
+            {letter}
+          </div>
+        ))}
+      </div>
+    </div>
   );
-}
+};
 
 export default App;
