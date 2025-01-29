@@ -44,7 +44,7 @@ function CountdownTimer({ timerStart, onComplete }: CountdownTimerProps) {
   return (
     <div className="w-full h-full absolute flex justify-center items-center z-10">
       {timeLeft > 0 ? (
-        <h1 className="w-36 h-36 text-5xl text-white bg-green-600 border-8 border-green-400 p-4 rounded-full flex justify-center items-center">{timeLeft}</h1>
+        <h1 className="w-36 h-36 text-5xl text-red-400 bg-red-100 border-8 border-red-200 p-4 rounded-full flex justify-center items-center">{timeLeft}</h1>
       ) : showGo ? (
         <p
           className="w-36 h-36 text-5xl text-white bg-green-600 border-8 border-green-400 p-4 rounded-full flex justify-center items-center"

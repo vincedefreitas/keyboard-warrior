@@ -1,4 +1,3 @@
-import "./App.css";
 import { useState } from "react";
 import TargetLetter from "./Components/TargetLetter/TargetLetter";
 import MovingBackground from "./Components/Background";
@@ -122,6 +121,7 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false)
   const [currentScore, setCurrentScore] = useState(0)
   const [timeLeft, settimeLeft] = useState (0)
+  const [showGo, setShowGo] = useState(false);
 
    const windowSize = useWindowSize();
    const radius = Math.min(windowSize.width, windowSize.height) * (gameStarted ? 0.4: 0);
