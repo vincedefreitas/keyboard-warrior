@@ -18,21 +18,17 @@ function CountdownTimer({ timerStart, onComplete }: CountdownTimerProps) {
       setTimeLeft((prev) => {
         if (prev > 1) return prev - 1;
         clearInterval(interval);
-        onComplete();
         setShowGo(true);
+        setTimeout(() => {
+          setShowGo(false);
+          onComplete();
+        }, 1000);
         return 0;
       });
     }, 1000);
 
     return () => clearInterval(interval);
   }, [timerStart, onComplete]);
-
-  useEffect(() => {
-    if (showGo) {
-      const timer = setTimeout(() => setShowGo(false), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [showGo]);
 
   if (!timerStart) return null;
 
@@ -41,7 +37,9 @@ function CountdownTimer({ timerStart, onComplete }: CountdownTimerProps) {
       {timeLeft > 0 ? (
         <h1 className="w-size text-9xl text-white p-4">{timeLeft}</h1>
       ) : showGo ? (
-        <p className="w-36 h-36 text-5xl text-white bg-green-600 border-8 border-green-400 p-4 rounded-full flex justify-center items-center">GO!</p>
+        <p className="w-36 h-36 text-5xl text-white bg-green-600 border-8 border-green-400 p-4 rounded-full flex justify-center items-center">
+          GO!
+        </p>
       ) : null}
     </div>
   );

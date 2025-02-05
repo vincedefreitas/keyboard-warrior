@@ -132,24 +132,24 @@ function App() {
   function handleTimerStart() {
     setIsModalOpen(false);
     setTimerStarted(true);
-    console.log("Modal open = " + isModalOpen);
-    console.log("timer started = " + timerStarted);
-    console.log("game running = " + gameStarted);
   }
 
   function handleGameStart() {
-    async () => setGameStarted(true);
-    async () => setTimerStarted(false);
+    setGameStarted(true);
+    setTimerStarted(false);
   }
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const randomLetter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
-      setFlyingLetter({ letter: randomLetter, progress: 0 });
-    }, 1500);
+    if (gameStarted) {
+      const interval = setInterval(() => {
+        const randomLetter =
+          LETTERS[Math.floor(Math.random() * LETTERS.length)];
+        setFlyingLetter({ letter: randomLetter, progress: 0 });
+      }, 1500);
 
-    return () => clearInterval(interval);
-  }, []);
+      return () => clearInterval(interval);
+    }
+  }, [gameStarted]);
 
   useEffect(() => {
     if (flyingLetter) {
@@ -169,6 +169,12 @@ function App() {
 
   return (
     <>
+      <StartModal
+        modalOpen={isModalOpen}
+        onClose={handleModalClose}
+        onStart={handleTimerStart}
+      />
+      <CountdownTimer timerStart={timerStarted} onComplete={handleGameStart} />
       <MovingBackground />
       {LETTERS.map((letter, index) => {
         const angle = (index / LETTERS.length) * Math.PI * 2 - Math.PI / 2;
