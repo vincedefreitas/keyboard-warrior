@@ -2,6 +2,7 @@ import "./App.css";
 import TargetLetter from "./components/TargetLetter/TargetLetter";
 import MovingBackground from "./components/Background";
 import FlyingLetter from "./components/FlyingLetter";
+import { useState, useEffect } from "react";
 
 const LETTER_COLORS = {
   Q: {
@@ -114,6 +115,36 @@ const LETTERS = Object.keys(LETTER_COLORS) as Array<keyof typeof LETTER_COLORS>;
 const TARGET_SIZE = 50;
 
 function App() {
+  const [flyingLetter, setFlyingLetter] = useState<{
+    letter: keyof typeof LETTER_COLORS;
+    progress: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const randomLetter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+      setFlyingLetter({ letter: randomLetter, progress: 0 });
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (flyingLetter) {
+      const animation = requestAnimationFrame(() => {
+        setFlyingLetter((prev) =>
+          prev ? { ...prev, progress: prev.progress + 0.01 } : null
+        );
+      });
+
+      if (flyingLetter.progress >= 1.2) {
+        setFlyingLetter(null);
+      }
+
+      return () => cancelAnimationFrame(animation);
+    }
+  }, [flyingLetter]);
+
   return (
     <>
       <MovingBackground />
@@ -129,6 +160,20 @@ function App() {
           />
         );
       })}
+      {flyingLetter && (
+        <FlyingLetter
+          letter={flyingLetter.letter}
+          angle={
+            (LETTERS.indexOf(flyingLetter.letter) / LETTERS.length) *
+              Math.PI *
+              2 -
+            Math.PI / 2
+          }
+          progress={flyingLetter.progress}
+          size={TARGET_SIZE}
+          colors={LETTER_COLORS[flyingLetter.letter]}
+        />
+      )}
     </>
   );
 }
