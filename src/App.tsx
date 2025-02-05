@@ -1,9 +1,9 @@
 import "./App.css";
 import { useState } from "react";
-import TargetLetter from "./Components/TargetLetter/TargetLetter";
-import MovingBackground from "./Components/Background";
-import StartModal from "./Components/StartModal";
-import CountdownTimer from "./Components/CountdownTimer";
+import TargetLetter from "./components/TargetLetter/TargetLetter";
+import MovingBackground from "./components/Background";
+import StartModal from "./components/StartModal";
+import CountdownTimer from "./components/CountdownTimer";
 
 const LETTER_COLORS = {
   Q: {
@@ -117,35 +117,37 @@ const TARGET_SIZE = 50;
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(true);
-  const [timerStarted, setTimerStarted] = useState(false)
-  const [gameStarted, setGameStarted] = useState(false)
+  const [timerStarted, setTimerStarted] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
 
-  function handleModalClose(){
+  function handleModalClose() {
     setIsModalOpen(false);
   }
 
   function handleTimerStart() {
     setIsModalOpen(false);
-    setTimerStarted(true)
-    console.log("Modal open = " + isModalOpen)
-    console.log("timer started = " + timerStarted)
-    console.log("game running = " + gameStarted)
+    setTimerStarted(true);
+    console.log("Modal open = " + isModalOpen);
+    console.log("timer started = " + timerStarted);
+    console.log("game running = " + gameStarted);
   }
 
   function handleGameStart() {
-    async () => setGameStarted(true)
-    async () => setTimerStarted(false)
+    async () => setGameStarted(true);
+    async () => setTimerStarted(false);
   }
-  
+
   return (
     <>
-
       <StartModal
         modalOpen={isModalOpen}
         onClose={handleModalClose}
         onStart={handleTimerStart}
       />
-      <CountdownTimer timerStart={timerStarted} onComplete={ () => handleGameStart }/>
+      <CountdownTimer
+        timerStart={timerStarted}
+        onComplete={() => handleGameStart}
+      />
       <MovingBackground />
       {LETTERS.map((letter, index) => {
         const angle = (index / LETTERS.length) * Math.PI * 2 - Math.PI / 2;
