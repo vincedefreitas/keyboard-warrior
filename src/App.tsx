@@ -1,9 +1,10 @@
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TargetLetter from "./components/TargetLetter/TargetLetter";
 import MovingBackground from "./components/Background";
 import StartModal from "./components/StartModal";
 import CountdownTimer from "./components/CountdownTimer";
+import FlyingLetter from "./components/FlyingLetter";
 
 const LETTER_COLORS = {
   Q: {
@@ -119,6 +120,10 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [timerStarted, setTimerStarted] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
+  const [flyingLetter, setFlyingLetter] = useState<{
+    letter: keyof typeof LETTER_COLORS;
+    progress: number;
+  } | null>(null);
 
   function handleModalClose() {
     setIsModalOpen(false);
@@ -137,17 +142,33 @@ function App() {
     async () => setTimerStarted(false);
   }
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const randomLetter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+      setFlyingLetter({ letter: randomLetter, progress: 0 });
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (flyingLetter) {
+      const animation = requestAnimationFrame(() => {
+        setFlyingLetter((prev) =>
+          prev ? { ...prev, progress: prev.progress + 0.01 } : null
+        );
+      });
+
+      if (flyingLetter.progress >= 1.2) {
+        setFlyingLetter(null);
+      }
+
+      return () => cancelAnimationFrame(animation);
+    }
+  }, [flyingLetter]);
+
   return (
     <>
-      <StartModal
-        modalOpen={isModalOpen}
-        onClose={handleModalClose}
-        onStart={handleTimerStart}
-      />
-      <CountdownTimer
-        timerStart={timerStarted}
-        onComplete={() => handleGameStart}
-      />
       <MovingBackground />
       {LETTERS.map((letter, index) => {
         const angle = (index / LETTERS.length) * Math.PI * 2 - Math.PI / 2;
@@ -161,6 +182,20 @@ function App() {
           />
         );
       })}
+      {flyingLetter && (
+        <FlyingLetter
+          letter={flyingLetter.letter}
+          angle={
+            (LETTERS.indexOf(flyingLetter.letter) / LETTERS.length) *
+              Math.PI *
+              2 -
+            Math.PI / 2
+          }
+          progress={flyingLetter.progress}
+          size={TARGET_SIZE}
+          colors={LETTER_COLORS[flyingLetter.letter]}
+        />
+      )}
     </>
   );
 }
